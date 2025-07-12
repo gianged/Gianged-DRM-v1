@@ -1,5 +1,4 @@
-﻿using System;
-using DRM.Hardware;
+﻿using DRM.Hardware;
 
 namespace DRM.Tests
 {

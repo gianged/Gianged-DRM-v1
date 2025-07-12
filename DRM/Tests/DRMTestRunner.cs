@@ -1,5 +1,4 @@
-﻿using System;
-using DRM.Core;
+﻿using DRM.Core;
 using DRM.Hardware;
 using DRM.Models;
 

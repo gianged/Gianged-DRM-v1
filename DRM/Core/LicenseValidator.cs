@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DRM.Models;
+﻿using DRM.Models;
 using DRM.Hardware;
 
 namespace DRM.Core
