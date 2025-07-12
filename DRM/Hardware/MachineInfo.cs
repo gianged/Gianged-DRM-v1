@@ -9,6 +9,8 @@ namespace DRM.Hardware
 {
     internal class MachineInfo
     {
+        protected MachineInfo() { }
+
         public static string GetMachineFingerprint()
         {
             var components = new List<string>();

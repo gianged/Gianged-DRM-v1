@@ -10,6 +10,8 @@ namespace DRM.Core
 {
     internal class LicenseValidator
     {
+        protected LicenseValidator() { }
+
         public static bool ValidateLicense(License license)
         {
             if (license == null)
@@ -46,7 +48,32 @@ namespace DRM.Core
             if (feature.ExpirationDate.HasValue && feature.ExpirationDate < DateTime.Now)
                 return false;
                 
-            return true;
+            return ValidateFeatureForTier(license.Tier, featureName);
+        }
+        
+        public static bool ValidateFeatureForTier(LicenseTier tier, string featureName)
+        {
+            return tier switch
+            {
+                LicenseTier.Trial => IsTrialFeature(featureName),
+                LicenseTier.Premium => true,
+                _ => false
+            };
+        }
+        
+        private static bool IsTrialFeature(string featureName)
+        {
+            var trialFeatures = new[] { "BasicFeatures", "LimitedExport" };
+            return trialFeatures.Contains(featureName);
+        }
+        
+        public static bool ValidateTierLimits(License license)
+        {
+            if (!ValidateLicense(license))
+                return false;
+                
+            var maxFeatures = license.Tier.GetMaxFeatures();
+            return license.Features.Count <= maxFeatures;
         }
         
         public static string GetValidationMessage(License license)

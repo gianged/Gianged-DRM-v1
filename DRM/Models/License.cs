@@ -8,10 +8,11 @@ namespace DRM.Models
 {
     internal class License
     {
-        public string LicenseKey { get; set; }
-        public string MachineId { get; set; }
+        public string LicenseKey { get; set; } = string.Empty;
+        public string MachineId { get; set; } = string.Empty;
         public DateTime ExpirationDate { get; set; }
         public bool IsValid { get; set; }
+        public LicenseTier Tier { get; set; }
         public List<LicenseFeature> Features { get; set; }
         
         public License()
@@ -20,11 +21,12 @@ namespace DRM.Models
             IsValid = false;
         }
         
-        public License(string licenseKey, string machineId, DateTime expirationDate)
+        public License(string licenseKey, string machineId, DateTime expirationDate, LicenseTier tier = LicenseTier.Trial)
         {
             LicenseKey = licenseKey;
             MachineId = machineId;
             ExpirationDate = expirationDate;
+            Tier = tier;
             IsValid = true;
             Features = new List<LicenseFeature>();
         }
