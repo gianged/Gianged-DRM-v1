@@ -18,24 +18,31 @@ This project is designed as an **educational exercise** to understand and implem
 
 ```
 DRM/
-├── Core/                                   # Core DRM functionality
-│   ├── CryptoHelper.cs                  # Cryptographic operations
-│   ├── LicenseGenerator.cs            # License creation logic
-│   ├── LicenseValidator.cs             # License verification
-│   └── ObfuscationHelper.cs         # Code obfuscation utilities
-├── Hardware/                           # Hardware identification
-│   └── MachineInfo.cs                  # System fingerprinting
-├── Models/                               # Data models
-│   ├── License.cs                          # License structure
-│   └── LicenseFeature.cs              # Feature definitions
-├── Protection/                         # Security mechanisms
-│   ├── AntiDebugger.cs                # Anti-debugging techniques
-│   └── IntegrityChecker.cs          # Code integrity verification
-├── Storage/                            # License storage
-│   └── LicenseStorage.cs             # License persistence
-└── Utils/                                 # Utility classes
-    ├── Encoder.cs                          # Encoding/decoding helpers
-    └── Logger.cs                            # Logging functionality
+├── Core/                           # Core DRM functionality
+│   ├── CryptoHelper.cs             # Cryptographic operations
+│   ├── LicenseGenerator.cs         # License creation logic
+│   ├── LicenseValidator.cs         # License verification
+│   └── ObfuscationHelper.cs        # Code obfuscation utilities
+├── Hardware/                       # Hardware identification
+│   └── MachineInfo.cs              # System fingerprinting
+├── Models/                         # Data models
+│   ├── License.cs                  # License structure
+│   ├── LicenseFeature.cs           # Feature definitions
+│   └── LicenseTier.cs              # License tier definitions
+├── Protection/                     # Security mechanisms
+│   ├── AntiDebugger.cs             # Anti-debugging techniques
+│   └── IntegrityChecker.cs         # Code integrity verification
+├── Storage/                        # License storage
+│   └── LicenseStorage.cs           # License persistence
+├── Tests/                          # Test framework
+│   ├── DRMTestRunner.cs            # Main test runner
+│   ├── HardwareTests.cs            # Hardware fingerprinting tests
+│   ├── LicenseValidationTests.cs   # License validation tests
+│   └── TierValidationTests.cs      # License tier validation tests
+├── Utils/                          # Utility classes
+│   ├── Encoder.cs                  # Encoding/decoding helpers
+│   └── Logger.cs                   # Logging functionality
+└── Program.cs                      # Application entry point
 ```
 
 ## Technologies Used
