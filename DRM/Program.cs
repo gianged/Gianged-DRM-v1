@@ -51,7 +51,7 @@ static void RunApplication()
     Console.WriteLine();
     Console.WriteLine("Checking available features...");
     
-    if (LicenseValidator.ValidateFeature(trialLicense, "BasicFeatures"))
+    if (LicenseValidator.ValidateFeature(trialLicense, "BasicFeatures").IsValid)
     {
         Console.WriteLine("✓ Basic Features - Available");
         SimulateBasicFeatures();
@@ -61,7 +61,7 @@ static void RunApplication()
         Console.WriteLine("✗ Basic Features - Not Available");
     }
     
-    if (LicenseValidator.ValidateFeature(trialLicense, "AdvancedFeatures"))
+    if (LicenseValidator.ValidateFeature(trialLicense, "AdvancedFeatures").IsValid)
     {
         Console.WriteLine("✓ Advanced Features - Available");
         SimulateAdvancedFeatures();

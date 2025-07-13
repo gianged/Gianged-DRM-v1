@@ -1,6 +1,6 @@
 ﻿namespace DRM.Models
 {
-    internal enum LicenseTier
+    public enum LicenseTier
     {
         Trial = 0,
         Premium = 1

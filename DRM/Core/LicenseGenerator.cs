@@ -24,7 +24,7 @@ namespace DRM.Core
             
             license.Features.Add(new LicenseFeature("BasicFeatures", true));
             license.Features.Add(new LicenseFeature("LimitedExport", true));
-            license.Features.Add(new LicenseFeature("MaxUsers", true, "1"));
+            license.Features.Add(new LicenseFeature("MaxUsers", true, null, "1"));
             
             return license;
         }
@@ -44,7 +44,7 @@ namespace DRM.Core
             license.Features.Add(new LicenseFeature("UnlimitedExport", true));
             license.Features.Add(new LicenseFeature("PrioritySupport", true));
             license.Features.Add(new LicenseFeature("CustomizationTools", true));
-            license.Features.Add(new LicenseFeature("MaxUsers", true, "unlimited"));
+            license.Features.Add(new LicenseFeature("MaxUsers", true, null, "unlimited"));
             
             return license;
         }
@@ -68,7 +68,7 @@ namespace DRM.Core
             return $"{prefix}-{randomPart}-{timestamp}-{checksum}";
         }
 
-        public static string CreateEncryptedLicenseFile(License license, string encryptionKey = null)
+        public static string CreateEncryptedLicenseFile(License license, string? encryptionKey = null)
         {
             try
             {
@@ -99,8 +99,8 @@ namespace DRM.Core
             try
             {
                 var licenseData = JsonConvert.DeserializeObject<dynamic>(encryptedLicenseData);
-                var encryptedLicense = licenseData.EncryptedLicense.ToString();
-                var keyHash = licenseData.KeyHash.ToString();
+                var encryptedLicense = licenseData?.EncryptedLicense.ToString();
+                var keyHash = licenseData?.KeyHash.ToString();
                 
                 if (!CryptoHelper.SecureCompare(CryptoHelper.ComputeSHA256Hash(encryptionKey), keyHash))
                 {
@@ -116,7 +116,7 @@ namespace DRM.Core
             }
         }
 
-        public static string SignLicense(License license, string privateKey = null)
+        public static string SignLicense(License license, string? privateKey = null)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace DRM.Core
             }
         }
 
-        public static bool VerifyLicenseSignature(License license, string signature, string publicKey = null)
+        public static bool VerifyLicenseSignature(License license, string signature, string? publicKey = null)
         {
             try
             {
@@ -152,7 +152,7 @@ namespace DRM.Core
             }
         }
 
-        public static License CreateSignedLicense(LicenseTier tier, string machineId, string userId = "", string productName = "Educational DRM", DateTime? customExpiration = null, string privateKey = null)
+        public static License CreateSignedLicense(LicenseTier tier, string machineId, string userId = "", string productName = "Educational DRM", DateTime? customExpiration = null, string? privateKey = null)
         {
             var license = GenerateLicenseForTier(tier, machineId, userId, productName, customExpiration);
             license.Signature = SignLicense(license, privateKey);
@@ -179,7 +179,7 @@ namespace DRM.Core
             try
             {
                 var template = JsonConvert.DeserializeObject<dynamic>(templateJson);
-                var tier = Enum.Parse<LicenseTier>(template.Tier.ToString());
+                var tier = Enum.Parse<LicenseTier>(template?.Tier.ToString());
                 
                 var machineId = parameters.GetValueOrDefault("MachineId", "").ToString();
                 var userId = parameters.GetValueOrDefault("UserId", "").ToString();

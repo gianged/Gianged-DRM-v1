@@ -364,6 +364,12 @@ namespace DRM.Core
             };
         }
 
+        public static string GetValidationMessage(License license)
+        {
+            var result = ValidateLicense(license);
+            return result.GetSummary();
+        }
+
         public class ValidationResult
         {
             public bool IsValid => !Errors.Any();

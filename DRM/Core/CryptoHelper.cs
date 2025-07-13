@@ -5,6 +5,8 @@ namespace DRM.Core
 {
     public class CryptoHelper
     {
+        protected CryptoHelper() { }
+
         private static readonly byte[] DefaultSalt = Encoding.UTF8.GetBytes("DRMSalt2024");
 
         public static string GenerateAESKey()
@@ -126,14 +128,14 @@ namespace DRM.Core
             return Convert.ToBase64String(hashedBytes);
         }
 
-        public static byte[] DeriveKey(string password, byte[] salt = null, int keyLength = 32, int iterations = 10000)
+        public static byte[] DeriveKey(string password, byte[]? salt = null, int keyLength = 32, int iterations = 10000)
         {
             salt ??= DefaultSalt;
             using var rfc2898 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
             return rfc2898.GetBytes(keyLength);
         }
 
-        public static string DeriveKeyBase64(string password, byte[] salt = null, int keyLength = 32, int iterations = 10000)
+        public static string DeriveKeyBase64(string password, byte[]? salt = null, int keyLength = 32, int iterations = 10000)
         {
             var keyBytes = DeriveKey(password, salt, keyLength, iterations);
             return Convert.ToBase64String(keyBytes);
