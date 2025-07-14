@@ -5,9 +5,22 @@ namespace DRM.Core
 {
     public class CryptoHelper
     {
-        protected CryptoHelper() { }
+        public CryptoHelper() { }
 
         private static readonly byte[] DefaultSalt = Encoding.UTF8.GetBytes("DRMSalt2024");
+        private static readonly string DefaultKey = "DRMDefaultKey2024!@#$%^&*()_+";
+
+        public string EncryptString(string plainText)
+        {
+            var key = DeriveKeyBase64(DefaultKey);
+            return EncryptAES(plainText, key);
+        }
+
+        public string DecryptString(string cipherText)
+        {
+            var key = DeriveKeyBase64(DefaultKey);
+            return DecryptAES(cipherText, key);
+        }
 
         public static string GenerateAESKey()
         {

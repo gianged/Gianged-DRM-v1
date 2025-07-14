@@ -30,5 +30,15 @@ namespace DRM.Models
             Features = new List<LicenseFeature>();
             IssueDate = DateTime.UtcNow;
         }
+
+        public bool IsExpired()
+        {
+            return DateTime.UtcNow > ExpirationDate;
+        }
+
+        public bool IsValidLicense()
+        {
+            return IsValid && !IsExpired();
+        }
     }
 }

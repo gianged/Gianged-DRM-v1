@@ -2,6 +2,7 @@
 using DRM.Hardware;
 using DRM.Models;
 using DRM.Protection;
+using DRM.Storage;
 using DRM.Tests;
 
 try
@@ -37,6 +38,27 @@ try
     // AntiDebugger.StartAntiDebugMonitoring();
     // IntegrityChecker.StartIntegrityMonitoring();
     
+    // Initialize license storage
+    var licenseStorage = new LicenseStorage();
+    Console.WriteLine($"License storage path: {licenseStorage.GetLicensePath()}");
+    
+    // Check for existing license
+    var existingLicense = licenseStorage.RetrieveLicense();
+    if (existingLicense != null)
+    {
+        var isValid = LicenseValidator.ValidateLicense(existingLicense);
+        Console.WriteLine($"Existing license found: {(isValid.IsValid ? "VALID" : "INVALID")}");
+        if (!isValid.IsValid)
+        {
+            Console.WriteLine($"License issues: {string.Join(", ", isValid.Errors)}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("No existing license found");
+    }
+    
+    Console.WriteLine();
     Console.WriteLine("DRM Educational License System");
 
     while (true)
@@ -47,18 +69,21 @@ try
         switch (choice?.ToLower())
         {
             case "1":
-                RunApplication();
+                RunApplication(licenseStorage);
                 break;
             case "2":
                 RunSecurityDemo();
                 break;
             case "3":
-                DRMTestRunner.RunAllTests();
+                ManageLicenses(licenseStorage);
                 break;
             case "4":
-                ShowSystemInfo();
+                DRMTestRunner.RunAllTests();
                 break;
             case "5":
+                ShowSystemInfo();
+                break;
+            case "6":
                 Console.WriteLine("Goodbye!");
                 return;
             default:
@@ -92,14 +117,15 @@ static void ShowMainMenu()
     Console.WriteLine("Select an option:");
     Console.WriteLine("1. Run License Demo Application");
     Console.WriteLine("2. Run Security Protection Demo");
-    Console.WriteLine("3. Run DRM Tests");
-    Console.WriteLine("4. Show System Information");
-    Console.WriteLine("5. Exit");
+    Console.WriteLine("3. Manage Licenses");
+    Console.WriteLine("4. Run DRM Tests");
+    Console.WriteLine("5. Show System Information");
+    Console.WriteLine("6. Exit");
     Console.WriteLine("=======================================");
-    Console.Write("Enter choice (1-5): ");
+    Console.Write("Enter choice (1-6): ");
 }
 
-static void RunApplication()
+static void RunApplication(LicenseStorage licenseStorage)
 {
     try
     {
@@ -114,16 +140,45 @@ static void RunApplication()
             Console.WriteLine("Virtual machine detected!");
         }
         
+        // Check for existing valid license first
+        var existingLicense = licenseStorage.RetrieveLicense();
+        if (existingLicense != null)
+        {
+            var validation = LicenseValidator.ValidateLicense(existingLicense);
+            if (validation.IsValid)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Using existing valid license:");
+                Console.WriteLine($"License Key: {existingLicense.LicenseKey}");
+                Console.WriteLine($"Tier: {existingLicense.Tier}");
+                Console.WriteLine($"Expires: {existingLicense.ExpirationDate:yyyy-MM-dd HH:mm:ss}");
+                
+                Console.WriteLine();
+                Console.WriteLine("Testing License Features...");
+                TestLicenseFeatures(existingLicense);
+                
+                Console.WriteLine();
+                Console.WriteLine("Application running with existing license!");
+                return;
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine("Existing license is invalid or expired");
+                Console.WriteLine($"Issues: {string.Join(", ", validation.Errors)}");
+            }
+        }
+        
         Console.WriteLine();
-        Console.WriteLine("Generating licenses...");
+        Console.WriteLine("No valid license found. Generating demo licenses...");
         
         var trialLicense = LicenseGenerator.GenerateTrialLicense(machineId);
         Console.WriteLine($"Trial License: {trialLicense.LicenseKey}");
-        Console.WriteLine($"   Valid: {LicenseValidator.ValidateLicense(trialLicense)}");
+        Console.WriteLine($"   Valid: {LicenseValidator.ValidateLicense(trialLicense).IsValid}");
         
         var premiumLicense = LicenseGenerator.GeneratePremiumLicense(machineId, "user123", "DRM-Educational");
         Console.WriteLine($"Premium License: {premiumLicense.LicenseKey}");
-        Console.WriteLine($"   Valid: {LicenseValidator.ValidateLicense(premiumLicense)}");
+        Console.WriteLine($"   Valid: {LicenseValidator.ValidateLicense(premiumLicense).IsValid}");
         
         Console.WriteLine();
         Console.WriteLine("Testing Trial License Features...");
@@ -242,6 +297,225 @@ static void ShowSystemInfo()
     catch (Exception ex)
     {
         Console.WriteLine($"Error getting system info: {ex.Message}");
+    }
+}
+
+static void ManageLicenses(LicenseStorage licenseStorage)
+{
+    try
+    {
+        Console.WriteLine();
+        Console.WriteLine("=== License Management ===");
+        
+        while (true)
+        {
+            ShowLicenseMenu();
+            var choice = Console.ReadLine();
+            
+            switch (choice?.ToLower())
+            {
+                case "1":
+                    ViewCurrentLicense(licenseStorage);
+                    break;
+                case "2":
+                    GenerateAndSaveLicense(licenseStorage);
+                    break;
+                case "3":
+                    LoadLicenseFromFile(licenseStorage);
+                    break;
+                case "4":
+                    DeleteCurrentLicense(licenseStorage);
+                    break;
+                case "5":
+                    return;
+                default:
+                    Console.WriteLine("Invalid choice. Please try again.");
+                    continue;
+            }
+            
+            Console.WriteLine();
+            Console.Write("Press any key to continue...");
+            try
+            {
+                Console.ReadKey();
+            }
+            catch
+            {
+                Thread.Sleep(1000);
+            }
+            Console.Clear();
+            Console.WriteLine("=== License Management ===");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error in license management: {ex.Message}");
+    }
+}
+
+static void ShowLicenseMenu()
+{
+    Console.WriteLine("---------------------------------------");
+    Console.WriteLine("License Management Options:");
+    Console.WriteLine("1. View Current License");
+    Console.WriteLine("2. Generate and Save New License");
+    Console.WriteLine("3. Load License from Storage");
+    Console.WriteLine("4. Delete Current License");
+    Console.WriteLine("5. Back to Main Menu");
+    Console.WriteLine("---------------------------------------");
+    Console.Write("Enter choice (1-5): ");
+}
+
+static void ViewCurrentLicense(LicenseStorage licenseStorage)
+{
+    try
+    {
+        var license = licenseStorage.RetrieveLicense();
+        if (license == null)
+        {
+            Console.WriteLine("No license found in storage.");
+            return;
+        }
+        
+        Console.WriteLine();
+        Console.WriteLine("Current License Details:");
+        Console.WriteLine($"  License Key: {license.LicenseKey}");
+        Console.WriteLine($"  User ID: {license.UserId ?? "N/A"}");
+        Console.WriteLine($"  Product: {license.ProductName ?? "N/A"}");
+        Console.WriteLine($"  Tier: {license.Tier}");
+        Console.WriteLine($"  Issue Date: {license.IssueDate:yyyy-MM-dd HH:mm:ss}");
+        Console.WriteLine($"  Expiration: {license.ExpirationDate:yyyy-MM-dd HH:mm:ss}");
+        Console.WriteLine($"  Machine ID: {license.MachineId}");
+        Console.WriteLine($"  Is Expired: {license.IsExpired()}");
+        
+        var validation = LicenseValidator.ValidateLicense(license);
+        Console.WriteLine($"  Validation: {(validation.IsValid ? "VALID" : "INVALID")}");
+        if (!validation.IsValid)
+        {
+            Console.WriteLine($"  Issues: {string.Join(", ", validation.Errors)}");
+        }
+        
+        Console.WriteLine();
+        Console.WriteLine("License Features:");
+        TestLicenseFeatures(license);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error viewing license: {ex.Message}");
+    }
+}
+
+static void GenerateAndSaveLicense(LicenseStorage licenseStorage)
+{
+    try
+    {
+        Console.WriteLine();
+        Console.WriteLine("Generate New License:");
+        Console.WriteLine("1. Trial License (7 days)");
+        Console.WriteLine("2. Premium License (1 year)");
+        Console.Write("Choose license type (1-2): ");
+        
+        var choice = Console.ReadLine();
+        var machineId = MachineInfo.GetMachineId();
+        License newLicense;
+        
+        switch (choice)
+        {
+            case "1":
+                newLicense = LicenseGenerator.GenerateTrialLicense(machineId);
+                Console.WriteLine("Generated Trial License");
+                break;
+            case "2":
+                Console.Write("Enter User ID: ");
+                var userId = Console.ReadLine() ?? "demo-user";
+                Console.Write("Enter Product Name: ");
+                var productName = Console.ReadLine() ?? "DRM-Educational";
+                newLicense = LicenseGenerator.GeneratePremiumLicense(machineId, userId, productName);
+                Console.WriteLine("Generated Premium License");
+                break;
+            default:
+                Console.WriteLine("Invalid choice. Generating Trial License as default.");
+                newLicense = LicenseGenerator.GenerateTrialLicense(machineId);
+                break;
+        }
+        
+        // Save the license
+        licenseStorage.StoreLicense(newLicense);
+        Console.WriteLine($"License saved successfully!");
+        Console.WriteLine($"License Key: {newLicense.LicenseKey}");
+        Console.WriteLine($"Expires: {newLicense.ExpirationDate:yyyy-MM-dd HH:mm:ss}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error generating license: {ex.Message}");
+    }
+}
+
+static void LoadLicenseFromFile(LicenseStorage licenseStorage)
+{
+    try
+    {
+        Console.WriteLine();
+        Console.WriteLine("Loading license from storage...");
+        
+        if (!licenseStorage.LicenseFileExists())
+        {
+            Console.WriteLine("No license file found in storage.");
+            return;
+        }
+        
+        var license = licenseStorage.RetrieveLicense();
+        if (license == null)
+        {
+            Console.WriteLine("Failed to load license from storage (file may be corrupted).");
+            return;
+        }
+        
+        Console.WriteLine("License loaded successfully!");
+        Console.WriteLine($"License Key: {license.LicenseKey}");
+        Console.WriteLine($"Tier: {license.Tier}");
+        Console.WriteLine($"Expires: {license.ExpirationDate:yyyy-MM-dd HH:mm:ss}");
+        
+        var validation = LicenseValidator.ValidateLicense(license);
+        Console.WriteLine($"Status: {(validation.IsValid ? "VALID" : "INVALID")}");
+        if (!validation.IsValid)
+        {
+            Console.WriteLine($"Issues: {string.Join(", ", validation.Errors)}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error loading license: {ex.Message}");
+    }
+}
+
+static void DeleteCurrentLicense(LicenseStorage licenseStorage)
+{
+    try
+    {
+        Console.WriteLine();
+        if (!licenseStorage.LicenseFileExists())
+        {
+            Console.WriteLine("No license file found to delete.");
+            return;
+        }
+        
+        Console.Write("Are you sure you want to delete the current license? (y/N): ");
+        var confirmation = Console.ReadLine();
+        
+        if (confirmation?.ToLower() == "y" || confirmation?.ToLower() == "yes")
+        {
+            licenseStorage.DeleteLicense();
+            Console.WriteLine("License deleted successfully!");
+        }
+        else
+        {
+            Console.WriteLine("License deletion cancelled.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error deleting license: {ex.Message}");
     }
 }
 
