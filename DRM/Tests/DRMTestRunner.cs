@@ -10,7 +10,7 @@ namespace DRM.Tests
 
         public static void RunAllTests()
         {
-            Console.WriteLine("=== DRM Test Suite - Phase 1.2 ===");
+            Console.WriteLine("=== DRM Test Suite ===");
             Console.WriteLine();
             
             var machineId = MachineInfo.GetMachineId();
