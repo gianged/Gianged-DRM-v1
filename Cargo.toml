@@ -1,0 +1,66 @@
+[package]
+name = "gianged-drm"
+version = "1.0.0"
+edition = "2021"
+authors = ["Gianged DRM Team"]
+description = "Educational DRM system demonstrating software licensing and protection mechanisms"
+license = "MIT"
+
+[dependencies]
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Cryptography
+aes = "0.8"
+cbc = "0.1"
+rsa = { version = "0.9", features = ["sha2"] }
+sha2 = "0.10"
+pbkdf2 = { version = "0.12", features = ["simple"] }
+rand = "0.8"
+hmac = "0.12"
+
+# Encoding
+base64 = "0.21"
+hex = "0.4"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# System Information
+sysinfo = "0.30"
+mac_address = "1.1"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+colored = "2.1"
+
+# File operations
+dirs = "5.0"
+regex = "1.10"
+
+# Windows-specific
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+windows = { version = "0.52", features = [
+    "Win32_Foundation",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Threading",
+    "Win32_System_SystemInformation",
+] }
+
+# Testing
+[dev-dependencies]
+serial_test = "3.0"
+tempfile = "3.8"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
